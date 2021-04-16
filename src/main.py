@@ -8,7 +8,9 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Planet, Person, Favorito
+import json
+from json import JSONEncoder
 #from models import Person
 
 #import JWT for tokenization
@@ -45,6 +47,47 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+@app.route('/planets', methods=['GET'])
+def bring_planets():
+
+    allplanets = Planet.query.all()
+    allplanets = list(map(lambda x: Planet.serialize(x), allplanets))
+
+    return  jsonify(allplanets), 200
+
+@app.route('/people', methods=['GET'])
+def bring_people():
+
+    allpeople = Person.query.all()
+    allpeople = list(map(lambda x: Person.serialize(x), allpeople))
+
+    return  jsonify(allpeople), 200
+
+@app.route('/getfavorites', methods=['GET'])
+def get_favorites():
+
+    #person_id = request.json.get("person_id", None)
+    #person_id_list = Favorites.query.filter_by(person_id=person_id).all()
+    #allfavorite = list(map(lambda x: Favorito.serialize(x), allfavorite))
+
+    return  jsonify(allpeople), 200
+
+
+@app.route('/postfavorites', methods=['POST'])
+def post_favorites():
+    person_id = request.json.get("person_id")
+    planet_id = request.json.get("planet_id")
+    user_id = request.json.get("user_id")
+
+    new_favorite = Favorito()
+    new_favorite.person_id = person_id
+    new_favorite.planet_id = planet_id
+    new_favorite.user_id = user_id
+    # crea registro nuevo en BBDD de 
+    db.session.add(new_favorite)
+    db.session.commit()
+    return jsonify({"msg": "Favorite created successfully"}), 200
 
 @app.route('/register', methods=['POST'])
 def register_user():
@@ -97,10 +140,7 @@ def login():
 # protege ruta con esta funcion
 @jwt_required()
 def protected():
-    # busca la identidad del token
-    current_id = get_jwt_identity()
-    # busca usuarios en base de datos
-    user = User.query.get(current_id)
+
     print(user)
     return jsonify({"id": user.id, "email": user.email}), 200
     

@@ -11,6 +11,7 @@ from admin import setup_admin
 from models import db, User, Planet, Person, Favorito
 import json
 from json import JSONEncoder
+from sqlalchemy import or_, and_
 #from models import Person
 
 #import JWT for tokenization
@@ -64,30 +65,64 @@ def bring_people():
 
     return  jsonify(allpeople), 200
 
-@app.route('/getfavorites', methods=['GET'])
-def get_favorites():
-
-    #person_id = request.json.get("person_id", None)
-    #person_id_list = Favorites.query.filter_by(person_id=person_id).all()
-    #allfavorite = list(map(lambda x: Favorito.serialize(x), allfavorite))
-
-    return  jsonify(allpeople), 200
-
-
-@app.route('/postfavorites', methods=['POST'])
+@app.route('/addfavorites', methods=['POST'])
+@jwt_required()
 def post_favorites():
-    person_id = request.json.get("person_id")
-    planet_id = request.json.get("planet_id")
-    user_id = request.json.get("user_id")
+
+    current_id = get_jwt_identity()
+    user = User.query.get(current_id)
+    user_email = user.email
+
+    person_name = request.json.get("person_name")
+    planet_name = request.json.get("planet_name")
 
     new_favorite = Favorito()
-    new_favorite.person_id = person_id
-    new_favorite.planet_id = planet_id
-    new_favorite.user_id = user_id
-    # crea registro nuevo en BBDD de 
+    new_favorite.person_name = person_name
+    new_favorite.planet_name = planet_name
+    new_favorite.user_email = user_email
+    # crea registro nuevo favorito
     db.session.add(new_favorite)
     db.session.commit()
     return jsonify({"msg": "Favorite created successfully"}), 200
+
+@app.route('/getfavorites', methods=['GET', 'POST'])
+@jwt_required()
+def get_favorites():
+
+    current_id = get_jwt_identity()
+    user = User.query.get(current_id)
+    user_email = user.email
+
+    allfavorites = Favorito.query.filter_by(user_email=user_email)
+    allfavorites = list(map(lambda x: Favorito.serialize(x), allfavorites))
+
+    return  jsonify(allfavorites), 200
+
+@app.route('/delfavorites', methods=['DELETE'])
+@jwt_required()
+def del_favorites():
+
+    current_id = get_jwt_identity()
+    user = User.query.get(current_id)
+    user_email = user.email
+
+    person_name = request.json.get("person_name")
+    planet_name = request.json.get("planet_name")
+    
+    if person_name is not None:
+        delfavorites = Favorito.query.filter_by(user_email=user_email).filter_by(person_name=person_name).first()
+        db.session.delete(delfavorites)
+        db.session.commit()
+        return jsonify({"msg": "Person has been deleted"}), 400
+    if planet_name is not None:
+        delfavorites = Favorito.query.filter_by(user_email=user_email).filter_by(planet_name=planet_name).first()
+        db.session.delete(delfavorites)
+        db.session.commit()
+        return jsonify({"msg": "Planet has been deleted"}), 400
+    if user_email is None:
+        return jsonify({"msg": "Email is not valid"}), 400
+    #else:
+        #return jsonify({"msg": "Person or Planet is not valid"}), 400
 
 @app.route('/register', methods=['POST'])
 def register_user():
@@ -141,6 +176,8 @@ def login():
 @jwt_required()
 def protected():
 
+    current_id = get_jwt_identity()
+    user = User.query.get(current_id)
     print(user)
     return jsonify({"id": user.id, "email": user.email}), 200
     

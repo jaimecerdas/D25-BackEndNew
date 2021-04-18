@@ -78,12 +78,18 @@ class Favorito(db.Model):
     # Here we define columns for the table address.
     # Notice that each column is also a normal Python instance attribute.
     id = db.Column(db.Integer, primary_key=True)
-    person_id = db.Column(db.Integer, db.ForeignKey('person.id'))
-    person = db.relationship(Person)
-    planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'))
-    planet = db.relationship(Planet)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship(User)
+    #person_id = db.Column(db.Integer, db.ForeignKey('person.id'),nullable=True)
+    #person = db.relationship(Person)
+    #planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'),nullable=True)
+    #planet = db.relationship(Planet)
+    #user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    #user = db.relationship(User)
+
+    id = db.Column(db.Integer, primary_key=True)
+    person_name = db.Column(db.String(250))
+    planet_name = db.Column(db.String(250))
+    user_email = db.Column(db.String(250), nullable=False)
+
 
     def __repr__(self):
         return '<Planet %r>' % self.id
@@ -91,10 +97,7 @@ class Favorito(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "person_id": self.person_id,
-            "person": self.person,
-            "planet_id": self.planet_id,
-            "planet": self.planet,
-            "user_id": self.user_id,
-            "user": self.user     
+            "person_name": self.person_name,
+            "planet_name": self.planet_name,
+            "user_email": self.user_email  
         }

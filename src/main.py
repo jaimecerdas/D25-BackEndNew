@@ -73,12 +73,11 @@ def post_favorites():
     user = User.query.get(current_id)
     user_email = user.email
 
-    person_name = request.json.get("person_name")
-    planet_name = request.json.get("planet_name")
+    favorito_name = request.json.get("favorito_name")
+
 
     new_favorite = Favorito()
-    new_favorite.person_name = person_name
-    new_favorite.planet_name = planet_name
+    new_favorite.favorito_name = favorito_name
     new_favorite.user_email = user_email
     # crea registro nuevo favorito
     db.session.add(new_favorite)
@@ -88,7 +87,6 @@ def post_favorites():
 @app.route('/getfavorites', methods=['GET', 'POST'])
 @jwt_required()
 def get_favorites():
-
     current_id = get_jwt_identity()
     user = User.query.get(current_id)
     user_email = user.email
@@ -106,23 +104,13 @@ def del_favorites():
     user = User.query.get(current_id)
     user_email = user.email
 
-    person_name = request.json.get("person_name")
-    planet_name = request.json.get("planet_name")
+    favorito_name = request.json.get("favorito_name")
     
-    if person_name is not None:
-        delfavorites = Favorito.query.filter_by(user_email=user_email).filter_by(person_name=person_name).first()
-        db.session.delete(delfavorites)
-        db.session.commit()
-        return jsonify({"msg": "Person has been deleted"}), 400
-    if planet_name is not None:
-        delfavorites = Favorito.query.filter_by(user_email=user_email).filter_by(planet_name=planet_name).first()
-        db.session.delete(delfavorites)
-        db.session.commit()
-        return jsonify({"msg": "Planet has been deleted"}), 400
-    if user_email is None:
-        return jsonify({"msg": "Email is not valid"}), 400
-    #else:
-        #return jsonify({"msg": "Person or Planet is not valid"}), 400
+    delfavorites = Favorito.query.filter_by(user_email=user_email).filter_by(favorito_name=favorito_name).first()
+    db.session.delete(delfavorites)
+    db.session.commit()
+    return jsonify({"msg": "Favorite has been deleted"}), 400
+
 
 @app.route('/register', methods=['POST'])
 def register_user():

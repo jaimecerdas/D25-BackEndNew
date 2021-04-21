@@ -77,7 +77,7 @@ class Favorito(db.Model):
     __tablename__ = 'favorito'
     # Here we define columns for the table address.
     # Notice that each column is also a normal Python instance attribute.
-    id = db.Column(db.Integer, primary_key=True)
+    #id = db.Column(db.Integer, primary_key=True)
     #person_id = db.Column(db.Integer, db.ForeignKey('person.id'),nullable=True)
     #person = db.relationship(Person)
     #planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'),nullable=True)
@@ -86,8 +86,7 @@ class Favorito(db.Model):
     #user = db.relationship(User)
 
     id = db.Column(db.Integer, primary_key=True)
-    person_name = db.Column(db.String(250))
-    planet_name = db.Column(db.String(250))
+    favorito_name = db.Column(db.String(250))
     user_email = db.Column(db.String(250), nullable=False)
 
 
@@ -97,7 +96,6 @@ class Favorito(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "person_name": self.person_name,
-            "planet_name": self.planet_name,
+            "favorito_name": self.favorito_name,
             "user_email": self.user_email  
         }
